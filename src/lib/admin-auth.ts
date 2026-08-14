@@ -34,7 +34,7 @@ export async function checkCredentials(username: string, password: string) {
   const { data } = await supabaseAdmin
     .from("admin_users")
     .select("password_hash")
-    .eq("username", username)
+    .eq("username", username.trim().toLowerCase())
     .maybeSingle();
 
   if (!data) return false;

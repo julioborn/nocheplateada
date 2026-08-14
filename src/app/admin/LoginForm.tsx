@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { login } from "./actions";
 
 export default function LoginForm() {
   const [state, formAction, pending] = useActionState(login, undefined);
+  const [username, setUsername] = useState("");
 
   return (
     <form
@@ -21,6 +22,8 @@ export default function LoginForm() {
           required
           autoFocus
           autoComplete="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value.toLowerCase())}
           className="rounded-lg border border-zinc-700 bg-black/60 px-4 py-2.5 text-zinc-100 outline-none transition focus:border-zinc-300 focus:ring-1 focus:ring-zinc-300"
         />
       </label>
