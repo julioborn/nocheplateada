@@ -5,10 +5,11 @@ import { isAdminAuthed } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 const COLUMNS = [
-  { key: "nombre", label: "Nombre", x: 40, width: 95 },
-  { key: "apellido", label: "Apellido", x: 135, width: 95 },
-  { key: "localidad", label: "Localidad", x: 230, width: 140 },
-  { key: "telefono", label: "Teléfono", x: 370, width: 90 },
+  { key: "nombre", label: "Nombre", x: 40, width: 85 },
+  { key: "apellido", label: "Apellido", x: 125, width: 85 },
+  { key: "localidad", label: "Localidad", x: 210, width: 110 },
+  { key: "telefono", label: "Teléfono", x: 320, width: 75 },
+  { key: "fechaNacimiento", label: "Nac.", x: 395, width: 65 },
   { key: "fechaHora", label: "Fecha / hora", x: 460, width: 95 },
 ] as const;
 
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin
     .from("attendees")
-    .select("nombre, apellido, localidad, telefono, created_at")
+    .select("nombre, apellido, localidad, telefono, fecha_nacimiento, created_at")
     .order("created_at", { ascending: false });
   if (localidad) query = query.eq("localidad", localidad);
 
@@ -36,11 +37,13 @@ export async function GET(request: NextRequest) {
 
   const rows = (data ?? []).map((a) => {
     const date = new Date(a.created_at);
+    const [y, m, d] = a.fecha_nacimiento.split("-");
     return {
       nombre: a.nombre,
       apellido: a.apellido,
       localidad: a.localidad,
       telefono: a.telefono ?? "—",
+      fechaNacimiento: `${d}/${m}/${y}`,
       fechaHora: `${date.toLocaleDateString("es-AR")} ${date.toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit",

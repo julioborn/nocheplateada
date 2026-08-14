@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin
     .from("attendees")
-    .select("nombre, apellido, localidad, telefono, created_at")
+    .select("nombre, apellido, localidad, telefono, fecha_nacimiento, created_at")
     .order("created_at", { ascending: false });
   if (localidad) query = query.eq("localidad", localidad);
 
@@ -46,7 +46,15 @@ export async function GET(request: NextRequest) {
 
   const headerRowIndex = 4;
   const headerRow = sheet.getRow(headerRowIndex);
-  headerRow.values = ["Nombre", "Apellido", "Localidad", "Teléfono", "Fecha", "Hora"];
+  headerRow.values = [
+    "Nombre",
+    "Apellido",
+    "Localidad",
+    "Teléfono",
+    "Fecha nac.",
+    "Fecha registro",
+    "Hora",
+  ];
   headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
   headerRow.eachCell((cell) => {
     cell.fill = {
@@ -62,17 +70,20 @@ export async function GET(request: NextRequest) {
     { key: "apellido", width: 20 },
     { key: "localidad", width: 24 },
     { key: "telefono", width: 18 },
+    { key: "fechaNacimiento", width: 14 },
     { key: "fecha", width: 14 },
     { key: "hora", width: 10 },
   ];
 
   (data ?? []).forEach((a) => {
     const date = new Date(a.created_at);
+    const [y, m, d] = a.fecha_nacimiento.split("-");
     sheet.addRow({
       nombre: a.nombre,
       apellido: a.apellido,
       localidad: a.localidad,
       telefono: a.telefono ?? "",
+      fechaNacimiento: `${d}/${m}/${y}`,
       fecha: date.toLocaleDateString("es-AR"),
       hora: date.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
     });

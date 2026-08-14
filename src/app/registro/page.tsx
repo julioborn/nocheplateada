@@ -5,19 +5,32 @@ import Link from "next/link";
 import Logo from "@/components/Logo";
 import SilverSparkles from "@/components/SilverSparkles";
 import LocalidadField from "@/components/LocalidadField";
+import FechaNacimientoField, {
+  type FechaNacimiento,
+  fechaNacimientoToISO,
+  isFechaNacimientoCompleta,
+} from "@/components/FechaNacimientoField";
 import { isValidLocalidad } from "@/lib/santa-fe-localidades";
 import { getDeviceId } from "@/lib/device-id";
+
+const INSTAGRAM_URL = "https://www.instagram.com/noche_plateada";
 
 export default function RegistroPage() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [localidad, setLocalidad] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState<FechaNacimiento>({
+    dia: "",
+    mes: "",
+    anio: "",
+  });
   const [status, setStatus] = useState<
     "checking" | "idle" | "loading" | "success" | "error" | "already"
   >("checking");
   const [error, setError] = useState("");
   const [localidadInvalid, setLocalidadInvalid] = useState(false);
+  const [fechaInvalid, setFechaInvalid] = useState(false);
 
   useEffect(() => {
     const deviceId = getDeviceId();
@@ -37,11 +50,22 @@ export default function RegistroPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
+    let hasError = false;
     if (!isValidLocalidad(localidad)) {
       setLocalidadInvalid(true);
-      return;
+      hasError = true;
+    } else {
+      setLocalidadInvalid(false);
     }
-    setLocalidadInvalid(false);
+
+    if (!isFechaNacimientoCompleta(fechaNacimiento)) {
+      setFechaInvalid(true);
+      hasError = true;
+    } else {
+      setFechaInvalid(false);
+    }
+
+    if (hasError) return;
 
     setStatus("loading");
     setError("");
@@ -54,6 +78,7 @@ export default function RegistroPage() {
         apellido,
         localidad,
         telefono,
+        fechaNacimiento: fechaNacimientoToISO(fechaNacimiento),
         deviceId: getDeviceId(),
       }),
     });
@@ -111,6 +136,17 @@ export default function RegistroPage() {
           <p className="mt-3 max-w-xs text-sm text-zinc-400">
             Disfrutá de la Noche Plateada.
           </p>
+          <p className="mt-6 text-xs uppercase tracking-widest text-zinc-500">
+            Seguimos en Instagram
+          </p>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-black shadow-[0_0_25px_rgba(200,210,225,0.35)] transition hover:shadow-[0_0_35px_rgba(200,210,225,0.55)] active:scale-[0.98]"
+          >
+            @noche_plateada
+          </a>
         </div>
       </main>
     );
@@ -142,6 +178,14 @@ export default function RegistroPage() {
               if (localidadInvalid) setLocalidadInvalid(false);
             }}
             invalid={localidadInvalid}
+          />
+          <FechaNacimientoField
+            value={fechaNacimiento}
+            onChange={(v) => {
+              setFechaNacimiento(v);
+              if (fechaInvalid) setFechaInvalid(false);
+            }}
+            invalid={fechaInvalid}
           />
           <Field
             label="Teléfono (opcional)"

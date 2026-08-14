@@ -73,6 +73,11 @@ export default function Dashboard({
 
   const exportQs = localidad ? `?localidad=${encodeURIComponent(localidad)}` : "";
 
+  function formatFecha(iso: string) {
+    const [y, m, d] = iso.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
   return (
     <div className="relative z-10 w-full max-w-5xl px-4 py-10">
       <div className="mx-auto mb-4 w-40 sm:w-48">
@@ -180,6 +185,7 @@ export default function Dashboard({
             </div>
             <div className="mt-3 flex items-center justify-between text-xs text-zinc-500">
               <span>{a.telefono ?? "Sin teléfono"}</span>
+              <span>Nac. {formatFecha(a.fecha_nacimiento)}</span>
               <span>
                 {new Date(a.created_at).toLocaleTimeString("es-AR", {
                   hour: "2-digit",
@@ -206,6 +212,7 @@ export default function Dashboard({
                 <th className="px-4 py-3">Apellido</th>
                 <th className="px-4 py-3">Localidad</th>
                 <th className="px-4 py-3">Teléfono</th>
+                <th className="px-4 py-3">F. Nac.</th>
                 <th className="px-4 py-3">Hora</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -217,6 +224,7 @@ export default function Dashboard({
                   <td className="px-4 py-2.5">{a.apellido}</td>
                   <td className="px-4 py-2.5">{a.localidad}</td>
                   <td className="px-4 py-2.5 text-zinc-400">{a.telefono ?? "—"}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{formatFecha(a.fecha_nacimiento)}</td>
                   <td className="px-4 py-2.5 text-zinc-500">
                     {new Date(a.created_at).toLocaleTimeString("es-AR", {
                       hour: "2-digit",
@@ -236,7 +244,7 @@ export default function Dashboard({
               ))}
               {visibleAttendees.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-zinc-500">
                     No hay inscriptos{localidad ? " en esta localidad" : ""} todavía.
                   </td>
                 </tr>
