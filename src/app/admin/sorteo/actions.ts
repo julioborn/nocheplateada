@@ -10,12 +10,12 @@ export type SorteoNombre = {
   localidad: string;
 };
 
-export async function getNombresParaSorteo(localidad: string): Promise<SorteoNombre[]> {
+export async function getNombresParaSorteo(): Promise<SorteoNombre[]> {
   if (!(await isAdminAuthed())) return [];
 
-  let query = supabaseAdmin.from("attendees").select("id, nombre, apellido, localidad");
-  if (localidad) query = query.eq("localidad", localidad);
+  const { data } = await supabaseAdmin
+    .from("attendees")
+    .select("id, nombre, apellido, localidad");
 
-  const { data } = await query;
   return data ?? [];
 }

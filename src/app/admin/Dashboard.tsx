@@ -225,7 +225,7 @@ export default function Dashboard({
           </div>
           <div className="flex items-center gap-3">
             <Link
-              href={`/sorteo${localidad ? `?localidad=${encodeURIComponent(localidad)}` : ""}`}
+              href="/admin/sorteo"
               className="rounded-full border border-zinc-600 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300 hover:border-zinc-400 hover:text-white"
             >
               Vista completa

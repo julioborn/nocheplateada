@@ -1,24 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
-import { sortearGanador } from "../admin/actions";
+import { sortearGanador } from "../actions";
 import type { SorteoNombre } from "./actions";
 
 const TOTAL_TICKS = 32;
 
-export default function SorteoView({
-  nombres,
-  localidad,
-  localidadOptions,
-}: {
-  nombres: SorteoNombre[];
-  localidad: string;
-  localidadOptions: string[];
-}) {
-  const router = useRouter();
+export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
   const [phase, setPhase] = useState<"idle" | "spinning" | "result">("idle");
   const [display, setDisplay] = useState<SorteoNombre | null>(null);
   const [tick, setTick] = useState(0);
@@ -30,16 +19,11 @@ export default function SorteoView({
     };
   }, []);
 
-  function handleFilterChange(value: string) {
-    const qs = value ? `?localidad=${encodeURIComponent(value)}` : "";
-    router.push(`/sorteo${qs}`);
-  }
-
   async function handleSortear() {
     if (nombres.length === 0 || phase === "spinning") return;
     setPhase("spinning");
 
-    const winner = await sortearGanador(localidad);
+    const winner = await sortearGanador("");
     if (!winner) {
       setPhase("idle");
       return;
@@ -79,40 +63,9 @@ export default function SorteoView({
         <Logo />
       </div>
 
-      <h1 className="mt-4 bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-sm font-semibold uppercase tracking-widest text-transparent">
-        Sorteo{localidad ? ` — ${localidad}` : ""}
-      </h1>
-
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <label className="flex items-center gap-2 text-xs uppercase tracking-widest text-zinc-400">
-          Localidad
-          <select
-            value={localidad}
-            onChange={(e) => handleFilterChange(e.target.value)}
-            disabled={phase === "spinning"}
-            className="rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-300 disabled:opacity-50"
-          >
-            <option value="">Todas</option>
-            {localidadOptions.map((loc) => (
-              <option key={loc} value={loc}>
-                {loc}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Link
-          href="/admin"
-          className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300"
-        >
-          Volver a admin
-        </Link>
-      </div>
-
       <div className="mt-10 flex h-56 w-full items-center justify-center rounded-2xl border-2 border-zinc-600 bg-zinc-950 px-6 shadow-[0_0_60px_rgba(160,170,190,0.15)]">
         {nombres.length === 0 ? (
-          <p className="text-center text-sm text-zinc-500">
-            No hay inscriptos{localidad ? " en esta localidad" : ""} para sortear.
-          </p>
+          <p className="text-center text-sm text-zinc-500">No hay inscriptos para sortear.</p>
         ) : phase === "idle" ? (
           <p className="text-center text-sm uppercase tracking-widest text-zinc-500">
             Presioná sortear para elegir un ganador
@@ -152,10 +105,6 @@ export default function SorteoView({
             ? "Sortear de nuevo"
             : "Sortear"}
       </button>
-
-      <p className="mt-6 text-xs text-zinc-600">
-        {nombres.length} {nombres.length === 1 ? "persona" : "personas"} en este sorteo
-      </p>
     </div>
   );
 }
