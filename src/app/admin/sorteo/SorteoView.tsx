@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Logo from "@/components/Logo";
-import { sortearGanador } from "../actions";
+import { sortearGanador, type Attendee } from "../actions";
+import WinnerDetailsModal from "./WinnerDetailsModal";
 import type { SorteoNombre } from "./actions";
 
 const TOTAL_TICKS = 32;
@@ -10,6 +11,8 @@ const TOTAL_TICKS = 32;
 export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
   const [phase, setPhase] = useState<"idle" | "spinning" | "result">("idle");
   const [display, setDisplay] = useState<SorteoNombre | null>(null);
+  const [winnerDetails, setWinnerDetails] = useState<Attendee | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
   const [tick, setTick] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -22,6 +25,8 @@ export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
   async function handleSortear() {
     if (nombres.length === 0 || phase === "spinning") return;
     setPhase("spinning");
+    setShowDetails(false);
+    setWinnerDetails(null);
 
     const winner = await sortearGanador("");
     if (!winner) {
@@ -42,6 +47,7 @@ export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
           apellido: winner!.apellido,
           localidad: winner!.localidad,
         });
+        setWinnerDetails(winner);
         setPhase("result");
         return;
       }
@@ -73,7 +79,10 @@ export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
         ) : (
           <div
             key={phase === "result" ? "result" : tick}
-            className={`text-center ${phase === "result" ? "sorteo-winner" : "sorteo-tick"}`}
+            role={phase === "result" ? "button" : undefined}
+            tabIndex={phase === "result" ? 0 : undefined}
+            onClick={() => phase === "result" && setShowDetails(true)}
+            className={`text-center ${phase === "result" ? "sorteo-winner cursor-pointer" : "sorteo-tick"}`}
           >
             {phase === "result" && (
               <p className="mb-2 text-sm uppercase tracking-widest text-zinc-400">
@@ -88,7 +97,12 @@ export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
               {display?.nombre} {display?.apellido}
             </p>
             {phase === "result" && display && (
-              <p className="mt-2 text-sm text-zinc-400">{display.localidad}</p>
+              <>
+                <p className="mt-2 text-sm text-zinc-400">{display.localidad}</p>
+                <p className="mt-3 text-xs uppercase tracking-widest text-zinc-600">
+                  Tocá el nombre para ver los datos
+                </p>
+              </>
             )}
           </div>
         )}
@@ -105,6 +119,10 @@ export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
             ? "Sortear de nuevo"
             : "Sortear"}
       </button>
+
+      {showDetails && winnerDetails && (
+        <WinnerDetailsModal winner={winnerDetails} onClose={() => setShowDetails(false)} />
+      )}
     </div>
   );
 }
