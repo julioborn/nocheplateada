@@ -395,3 +395,22 @@ const NORMALIZED_SET = new Set(SANTA_FE_LOCALIDADES.map(normalizeLocalidad));
 export function isValidLocalidad(value: string) {
   return NORMALIZED_SET.has(normalizeLocalidad(value));
 }
+
+export function matchLocalidades(query: string, limit = 8) {
+  const q = normalizeLocalidad(query);
+  if (!q) return [];
+
+  const scored: { loc: string; score: number }[] = [];
+  for (const loc of SANTA_FE_LOCALIDADES) {
+    const n = normalizeLocalidad(loc);
+    let score: number;
+    if (n === q) score = 0;
+    else if (n.startsWith(q)) score = 1;
+    else if (n.includes(q)) score = 2;
+    else continue;
+    scored.push({ loc, score });
+  }
+
+  scored.sort((a, b) => a.score - b.score || a.loc.localeCompare(b.loc, "es"));
+  return scored.slice(0, limit).map((s) => s.loc);
+}

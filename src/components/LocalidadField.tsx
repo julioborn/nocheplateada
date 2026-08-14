@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SANTA_FE_LOCALIDADES, normalizeLocalidad } from "@/lib/santa-fe-localidades";
+import { isValidLocalidad, matchLocalidades } from "@/lib/santa-fe-localidades";
 
 export default function LocalidadField({
   value,
@@ -15,11 +15,7 @@ export default function LocalidadField({
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
 
-  const matches = useMemo(() => {
-    const q = normalizeLocalidad(value);
-    if (!q) return [];
-    return SANTA_FE_LOCALIDADES.filter((loc) => normalizeLocalidad(loc).includes(q)).slice(0, 8);
-  }, [value]);
+  const matches = useMemo(() => matchLocalidades(value), [value]);
 
   function select(loc: string) {
     onChange(loc);
@@ -56,7 +52,14 @@ export default function LocalidadField({
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 120)}
+        onBlur={() => {
+          setTimeout(() => {
+            setOpen(false);
+            if (value && !isValidLocalidad(value)) {
+              onChange("");
+            }
+          }, 120);
+        }}
         onKeyDown={handleKeyDown}
         placeholder="Empezá a escribir..."
         className={`rounded-lg border bg-black/60 px-4 py-2.5 text-zinc-100 outline-none transition focus:ring-1 ${
