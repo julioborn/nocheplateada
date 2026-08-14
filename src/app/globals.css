@@ -61,27 +61,6 @@ body {
   }
 }
 
-@keyframes flash-pop {
-  0%,
-  74%,
-  100% {
-    opacity: 0;
-    transform: scale(0.2) rotate(var(--flare-rotate, 0deg));
-  }
-  80% {
-    opacity: 1;
-    transform: scale(1.25) rotate(var(--flare-rotate, 0deg));
-  }
-  87% {
-    opacity: 0.15;
-    transform: scale(0.65) rotate(var(--flare-rotate, 0deg));
-  }
-  93% {
-    opacity: 0.95;
-    transform: scale(1) rotate(var(--flare-rotate, 0deg));
-  }
-}
-
 .sparkle {
   position: absolute;
   border-radius: 9999px;
@@ -95,16 +74,6 @@ body {
     drift var(--drift-duration, 8s) ease-in-out infinite;
   animation-delay: var(--twinkle-delay, 0s);
   pointer-events: none;
-}
-
-.star-flare {
-  position: absolute;
-  animation: flash-pop var(--flare-duration, 5s) ease-in-out infinite,
-    drift var(--drift-duration, 9s) ease-in-out infinite;
-  animation-delay: var(--flare-delay, 0s), var(--flare-delay, 0s);
-  pointer-events: none;
-  filter: drop-shadow(0 0 6px rgba(225, 233, 248, 0.95))
-    drop-shadow(0 0 16px rgba(150, 185, 255, 0.55));
 }
 
 .shine-text {
