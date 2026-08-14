@@ -4,15 +4,17 @@ import PDFDocument from "pdfkit";
 import { isAdminAuthed } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { calcAge, ageRangeToBirthDateRange } from "@/lib/age";
+import { formatDni } from "@/components/DniField";
 
 const COLUMNS = [
-  { key: "nombre", label: "Nombre", x: 40, width: 80 },
-  { key: "apellido", label: "Apellido", x: 120, width: 80 },
-  { key: "localidad", label: "Localidad", x: 200, width: 95 },
-  { key: "telefono", label: "Teléfono", x: 295, width: 70 },
-  { key: "fechaNacimiento", label: "Nac.", x: 365, width: 60 },
-  { key: "edad", label: "Edad", x: 425, width: 40 },
-  { key: "fechaHora", label: "Fecha / hora", x: 465, width: 90 },
+  { key: "nombre", label: "Nombre", x: 40, width: 75 },
+  { key: "apellido", label: "Apellido", x: 115, width: 75 },
+  { key: "localidad", label: "Localidad", x: 190, width: 80 },
+  { key: "dni", label: "DNI", x: 270, width: 65 },
+  { key: "telefono", label: "Teléfono", x: 335, width: 55 },
+  { key: "fechaNacimiento", label: "Nac.", x: 390, width: 55 },
+  { key: "edad", label: "Edad", x: 445, width: 35 },
+  { key: "fechaHora", label: "Fecha / hora", x: 480, width: 75 },
 ] as const;
 
 const TABLE_TOP = 150;
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin
     .from("attendees")
-    .select("nombre, apellido, localidad, telefono, fecha_nacimiento, created_at")
+    .select("nombre, apellido, localidad, telefono, dni, fecha_nacimiento, created_at")
     .order("created_at", { ascending: false });
   if (localidad) query = query.eq("localidad", localidad);
   if (maxBirthDate) query = query.lte("fecha_nacimiento", maxBirthDate);
@@ -52,6 +54,7 @@ export async function GET(request: NextRequest) {
       nombre: a.nombre,
       apellido: a.apellido,
       localidad: a.localidad,
+      dni: formatDni(a.dni),
       telefono: a.telefono ?? "—",
       fechaNacimiento: `${d}/${m}/${y}`,
       edad: String(calcAge(a.fecha_nacimiento)),

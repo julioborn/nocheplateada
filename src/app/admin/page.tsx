@@ -47,7 +47,7 @@ export default async function AdminPage({
 
   let listQuery = supabaseAdmin
     .from("attendees")
-    .select("id, nombre, apellido, localidad, telefono, fecha_nacimiento, created_at", {
+    .select("id, nombre, apellido, localidad, telefono, dni, fecha_nacimiento, created_at", {
       count: "exact",
     })
     .order("created_at", { ascending: false })

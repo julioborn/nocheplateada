@@ -7,6 +7,7 @@ import { eliminarAsistente, logout, sortearGanador, type Attendee } from "./acti
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import Logo from "@/components/Logo";
 import { calcAge } from "@/lib/age";
+import { formatDni } from "@/components/DniField";
 
 export default function Dashboard({
   attendees,
@@ -222,13 +223,21 @@ export default function Dashboard({
               </p>
             )}
           </div>
-          <button
-            onClick={sortear}
-            disabled={sorting || total === 0}
-            className="inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-black disabled:opacity-60"
-          >
-            {sorting ? "Sorteando..." : "Sortear ganador"}
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/sorteo${localidad ? `?localidad=${encodeURIComponent(localidad)}` : ""}`}
+              className="rounded-full border border-zinc-600 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300 hover:border-zinc-400 hover:text-white"
+            >
+              Vista completa
+            </Link>
+            <button
+              onClick={sortear}
+              disabled={sorting || total === 0}
+              className="inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-black disabled:opacity-60"
+            >
+              {sorting ? "Sorteando..." : "Sortear ganador"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -245,6 +254,7 @@ export default function Dashboard({
                   {a.nombre} {a.apellido}
                 </p>
                 <p className="text-sm text-zinc-400">{a.localidad}</p>
+                <p className="text-xs text-zinc-500">DNI {formatDni(a.dni)}</p>
               </div>
               <button
                 onClick={() => setPendingDelete(a)}
@@ -284,6 +294,7 @@ export default function Dashboard({
                 <th className="px-4 py-3">Nombre</th>
                 <th className="px-4 py-3">Apellido</th>
                 <th className="px-4 py-3">Localidad</th>
+                <th className="px-4 py-3">DNI</th>
                 <th className="px-4 py-3">Teléfono</th>
                 <th className="px-4 py-3">F. Nac.</th>
                 <th className="px-4 py-3">Edad</th>
@@ -297,6 +308,7 @@ export default function Dashboard({
                   <td className="px-4 py-2.5">{a.nombre}</td>
                   <td className="px-4 py-2.5">{a.apellido}</td>
                   <td className="px-4 py-2.5">{a.localidad}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{formatDni(a.dni)}</td>
                   <td className="px-4 py-2.5 text-zinc-400">{a.telefono ?? "—"}</td>
                   <td className="px-4 py-2.5 text-zinc-400">{formatFecha(a.fecha_nacimiento)}</td>
                   <td className="px-4 py-2.5 text-zinc-400">{calcAge(a.fecha_nacimiento)}</td>
@@ -319,7 +331,7 @@ export default function Dashboard({
               ))}
               {visibleAttendees.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={9} className="px-4 py-8 text-center text-zinc-500">
                     No hay inscriptos{localidad ? " en esta localidad" : ""} todavía.
                   </td>
                 </tr>

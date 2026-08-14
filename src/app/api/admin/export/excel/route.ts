@@ -5,6 +5,7 @@ import ExcelJS from "exceljs";
 import { isAdminAuthed } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { calcAge, ageRangeToBirthDateRange } from "@/lib/age";
+import { formatDni } from "@/components/DniField";
 
 export async function GET(request: NextRequest) {
   if (!(await isAdminAuthed())) {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin
     .from("attendees")
-    .select("nombre, apellido, localidad, telefono, fecha_nacimiento, created_at")
+    .select("nombre, apellido, localidad, telefono, dni, fecha_nacimiento, created_at")
     .order("created_at", { ascending: false });
   if (localidad) query = query.eq("localidad", localidad);
   if (maxBirthDate) query = query.lte("fecha_nacimiento", maxBirthDate);
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
     "Nombre",
     "Apellido",
     "Localidad",
+    "DNI",
     "Teléfono",
     "Fecha nac.",
     "Edad",
@@ -79,6 +81,7 @@ export async function GET(request: NextRequest) {
     { key: "nombre", width: 20 },
     { key: "apellido", width: 20 },
     { key: "localidad", width: 24 },
+    { key: "dni", width: 14 },
     { key: "telefono", width: 18 },
     { key: "fechaNacimiento", width: 14 },
     { key: "edad", width: 8 },
@@ -93,6 +96,7 @@ export async function GET(request: NextRequest) {
       nombre: a.nombre,
       apellido: a.apellido,
       localidad: a.localidad,
+      dni: formatDni(a.dni),
       telefono: a.telefono ?? "",
       fechaNacimiento: `${d}/${m}/${y}`,
       edad: calcAge(a.fecha_nacimiento),

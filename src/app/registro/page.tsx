@@ -10,6 +10,7 @@ import FechaNacimientoField, {
   fechaNacimientoToISO,
   isFechaNacimientoCompleta,
 } from "@/components/FechaNacimientoField";
+import DniField, { isValidDni } from "@/components/DniField";
 import { isValidLocalidad } from "@/lib/santa-fe-localidades";
 import { getDeviceId } from "@/lib/device-id";
 
@@ -20,6 +21,7 @@ export default function RegistroPage() {
   const [apellido, setApellido] = useState("");
   const [localidad, setLocalidad] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [dni, setDni] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState<FechaNacimiento>({
     dia: "",
     mes: "",
@@ -31,6 +33,7 @@ export default function RegistroPage() {
   const [error, setError] = useState("");
   const [localidadInvalid, setLocalidadInvalid] = useState(false);
   const [fechaInvalid, setFechaInvalid] = useState(false);
+  const [dniInvalid, setDniInvalid] = useState(false);
 
   useEffect(() => {
     const deviceId = getDeviceId();
@@ -65,6 +68,13 @@ export default function RegistroPage() {
       setFechaInvalid(false);
     }
 
+    if (!isValidDni(dni)) {
+      setDniInvalid(true);
+      hasError = true;
+    } else {
+      setDniInvalid(false);
+    }
+
     if (hasError) return;
 
     setStatus("loading");
@@ -78,6 +88,7 @@ export default function RegistroPage() {
         apellido,
         localidad,
         telefono,
+        dni,
         fechaNacimiento: fechaNacimientoToISO(fechaNacimiento),
         deviceId: getDeviceId(),
       }),
@@ -187,6 +198,14 @@ export default function RegistroPage() {
               if (fechaInvalid) setFechaInvalid(false);
             }}
             invalid={fechaInvalid}
+          />
+          <DniField
+            value={dni}
+            onChange={(v) => {
+              setDni(v);
+              if (dniInvalid) setDniInvalid(false);
+            }}
+            invalid={dniInvalid}
           />
           <Field
             label="Teléfono (opcional)"

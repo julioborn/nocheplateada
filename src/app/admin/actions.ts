@@ -38,6 +38,7 @@ export type Attendee = {
   apellido: string;
   localidad: string;
   telefono: string | null;
+  dni: string;
   fecha_nacimiento: string;
   created_at: string;
 };
@@ -57,7 +58,7 @@ export async function sortearGanador(localidad: string): Promise<Attendee | null
 
   let rowQuery = supabaseAdmin
     .from("attendees")
-    .select("id, nombre, apellido, localidad, telefono, fecha_nacimiento, created_at")
+    .select("id, nombre, apellido, localidad, telefono, dni, fecha_nacimiento, created_at")
     .range(offset, offset);
   if (localidad) rowQuery = rowQuery.eq("localidad", localidad);
 

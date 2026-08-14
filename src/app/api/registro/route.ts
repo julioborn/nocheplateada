@@ -8,6 +8,10 @@ function getClientIp(request: NextRequest) {
   return request.headers.get("x-real-ip") ?? null;
 }
 
+function isValidDni(value: string) {
+  return /^\d{7,8}$/.test(value);
+}
+
 function isValidFechaNacimiento(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) return false;
@@ -47,6 +51,7 @@ export async function POST(request: NextRequest) {
   const apellido = String(body.apellido ?? "").trim();
   const localidad = String(body.localidad ?? "").trim();
   const telefono = String(body.telefono ?? "").trim();
+  const dni = String(body.dni ?? "").trim();
   const fechaNacimiento = String(body.fechaNacimiento ?? "").trim();
   const deviceId = body.deviceId ? String(body.deviceId).trim() : null;
 
@@ -54,6 +59,7 @@ export async function POST(request: NextRequest) {
     !nombre ||
     !apellido ||
     !isValidLocalidad(localidad) ||
+    !isValidDni(dni) ||
     !isValidFechaNacimiento(fechaNacimiento)
   ) {
     return NextResponse.json({ error: "invalid_fields" }, { status: 400 });
@@ -76,6 +82,7 @@ export async function POST(request: NextRequest) {
     apellido: apellido.toLocaleUpperCase("es"),
     localidad,
     telefono: telefono || null,
+    dni,
     fecha_nacimiento: fechaNacimiento,
     device_id: deviceId,
     ip_address: getClientIp(request),
