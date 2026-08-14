@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { eliminarAsistente, logout, sortearGanador, type Attendee } from "./actions";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 export default function Dashboard({
   attendees,
@@ -25,6 +26,7 @@ export default function Dashboard({
   const [sorting, startSorteo] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  const [pendingDelete, setPendingDelete] = useState<Attendee | null>(null);
   const [, startDelete] = useTransition();
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -52,11 +54,9 @@ export default function Dashboard({
     });
   }
 
-  function handleDelete(attendee: Attendee) {
-    const ok = window.confirm(
-      `¿Eliminar a ${attendee.nombre} ${attendee.apellido}? Esta acción no se puede deshacer.`
-    );
-    if (!ok) return;
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    const attendee = pendingDelete;
 
     setDeletingId(attendee.id);
     startDelete(async () => {
@@ -66,6 +66,7 @@ export default function Dashboard({
         router.refresh();
       }
       setDeletingId(null);
+      setPendingDelete(null);
     });
   }
 
@@ -165,7 +166,7 @@ export default function Dashboard({
                 <p className="text-sm text-zinc-400">{a.localidad}</p>
               </div>
               <button
-                onClick={() => handleDelete(a)}
+                onClick={() => setPendingDelete(a)}
                 disabled={deletingId === a.id}
                 className="shrink-0 rounded-full border border-red-500/40 px-3 py-1 text-xs uppercase tracking-widest text-red-400 hover:bg-red-500/10 disabled:opacity-50"
               >
@@ -219,7 +220,7 @@ export default function Dashboard({
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     <button
-                      onClick={() => handleDelete(a)}
+                      onClick={() => setPendingDelete(a)}
                       disabled={deletingId === a.id}
                       className="rounded-full border border-red-500/40 px-3 py-1 text-xs uppercase tracking-widest text-red-400 hover:bg-red-500/10 disabled:opacity-50"
                     >
@@ -265,6 +266,15 @@ export default function Dashboard({
           Siguiente
         </Link>
       </div>
+
+      {pendingDelete && (
+        <ConfirmDeleteModal
+          attendee={pendingDelete}
+          pending={deletingId === pendingDelete.id}
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
     </div>
   );
 }
