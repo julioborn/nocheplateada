@@ -5,8 +5,8 @@ export default function Logo({ className = "" }: { className?: string }) {
     <Image
       src="/logosinfondo.png"
       alt="Noche Plateada"
-      width={1672}
-      height={941}
+      width={1602}
+      height={697}
       priority
       className={`h-auto w-full max-w-md select-none ${className}`}
     />

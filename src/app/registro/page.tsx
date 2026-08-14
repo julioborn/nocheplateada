@@ -63,15 +63,15 @@ export default function RegistroPage() {
   }
 
   return (
-    <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-black px-6 py-16">
+    <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-black px-6 pt-8 pb-16">
       <SilverSparkles />
 
       <div className="relative z-10 flex w-full max-w-sm flex-col items-center">
-        <Logo className="mt-4 scale-[0.65] sm:scale-75" />
+        <Logo className="scale-[0.65] sm:scale-75" />
 
         <form
           onSubmit={handleSubmit}
-          className="mt-10 flex w-full flex-col gap-4 rounded-2xl border border-zinc-700/60 bg-zinc-950/60 p-6 shadow-[0_0_40px_rgba(160,170,190,0.08)] backdrop-blur"
+          className="mt-4 flex w-full flex-col gap-4 rounded-2xl border border-zinc-700/60 bg-zinc-950/60 p-6 shadow-[0_0_40px_rgba(160,170,190,0.08)] backdrop-blur"
         >
           <Field
             label="Nombre"
