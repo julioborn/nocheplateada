@@ -8,6 +8,21 @@ function getClientIp(request: NextRequest) {
   return request.headers.get("x-real-ip") ?? null;
 }
 
+export async function GET(request: NextRequest) {
+  const deviceId = request.nextUrl.searchParams.get("deviceId");
+  if (!deviceId) {
+    return NextResponse.json({ registered: false });
+  }
+
+  const { data } = await supabaseAdmin
+    .from("attendees")
+    .select("nombre")
+    .eq("device_id", deviceId)
+    .maybeSingle();
+
+  return NextResponse.json({ registered: !!data, nombre: data?.nombre ?? null });
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   if (!body) {

@@ -6,7 +6,7 @@ import Logo from "@/components/Logo";
 import SilverSparkles from "@/components/SilverSparkles";
 import LocalidadField from "@/components/LocalidadField";
 import { isValidLocalidad } from "@/lib/santa-fe-localidades";
-import { getDeviceId, isAlreadyRegistered, markAsRegistered } from "@/lib/device-id";
+import { getDeviceId } from "@/lib/device-id";
 
 export default function RegistroPage() {
   const [nombre, setNombre] = useState("");
@@ -14,13 +14,24 @@ export default function RegistroPage() {
   const [localidad, setLocalidad] = useState("");
   const [telefono, setTelefono] = useState("");
   const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error" | "already"
-  >("idle");
+    "checking" | "idle" | "loading" | "success" | "error" | "already"
+  >("checking");
   const [error, setError] = useState("");
   const [localidadInvalid, setLocalidadInvalid] = useState(false);
 
   useEffect(() => {
-    if (isAlreadyRegistered()) setStatus("already");
+    const deviceId = getDeviceId();
+    fetch(`/api/registro?deviceId=${encodeURIComponent(deviceId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.registered) {
+          if (data.nombre) setNombre(data.nombre);
+          setStatus("already");
+        } else {
+          setStatus("idle");
+        }
+      })
+      .catch(() => setStatus("idle"));
   }, []);
 
   async function handleSubmit(e: FormEvent) {
@@ -48,7 +59,6 @@ export default function RegistroPage() {
     });
 
     if (res.status === 409) {
-      markAsRegistered();
       setStatus("already");
       return;
     }
@@ -59,8 +69,15 @@ export default function RegistroPage() {
       return;
     }
 
-    markAsRegistered();
     setStatus("success");
+  }
+
+  if (status === "checking") {
+    return (
+      <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-black px-6 py-16">
+        <SilverSparkles />
+      </main>
+    );
   }
 
   if (status === "already") {

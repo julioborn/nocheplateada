@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { eliminarAsistente, logout, sortearGanador, type Attendee } from "./actions";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import Logo from "@/components/Logo";
 
 export default function Dashboard({
   attendees,
@@ -74,6 +75,10 @@ export default function Dashboard({
 
   return (
     <div className="relative z-10 w-full max-w-5xl px-4 py-10">
+      <div className="mx-auto mb-4 w-40 sm:w-48">
+        <Logo />
+      </div>
+
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
         <h1 className="bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
           Noche Plateada — Admin
@@ -90,13 +95,13 @@ export default function Dashboard({
         <StatCard label="Localidades" value={localidadOptions.length} />
         <a
           href={`/api/admin/export/excel${exportQs}`}
-          className="flex flex-col justify-center rounded-xl border border-zinc-700/60 bg-zinc-950/60 px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-300 hover:border-zinc-400 hover:text-white"
+          className="flex flex-col justify-center rounded-xl border border-zinc-700/60 bg-zinc-950 px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-300 hover:border-zinc-400 hover:text-white"
         >
           Descargar Excel
         </a>
         <a
           href={`/api/admin/export/pdf${exportQs}`}
-          className="flex flex-col justify-center rounded-xl border border-zinc-700/60 bg-zinc-950/60 px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-300 hover:border-zinc-400 hover:text-white"
+          className="flex flex-col justify-center rounded-xl border border-zinc-700/60 bg-zinc-950 px-4 py-3 text-center text-xs font-semibold uppercase tracking-widest text-zinc-300 hover:border-zinc-400 hover:text-white"
         >
           Descargar PDF
         </a>
@@ -108,7 +113,7 @@ export default function Dashboard({
           <select
             value={localidad}
             onChange={(e) => handleFilterChange(e.target.value)}
-            className="rounded-lg border border-zinc-700 bg-black/60 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-300"
+            className="rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-300"
           >
             <option value="">Todas</option>
             {localidadOptions.map((loc) => (
@@ -128,7 +133,7 @@ export default function Dashboard({
         )}
       </div>
 
-      <div className="mb-8 rounded-2xl border border-zinc-700/60 bg-zinc-950/60 p-6">
+      <div className="mb-8 rounded-2xl border border-zinc-700/60 bg-zinc-950 p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-300">
@@ -156,7 +161,7 @@ export default function Dashboard({
         {visibleAttendees.map((a) => (
           <div
             key={a.id}
-            className="rounded-xl border border-zinc-700/60 bg-zinc-950/60 p-4"
+            className="rounded-xl border border-zinc-700/60 bg-zinc-950 p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -185,14 +190,14 @@ export default function Dashboard({
           </div>
         ))}
         {visibleAttendees.length === 0 && (
-          <p className="rounded-xl border border-zinc-700/60 bg-zinc-950/60 p-6 text-center text-sm text-zinc-500">
+          <p className="rounded-xl border border-zinc-700/60 bg-zinc-950 p-6 text-center text-sm text-zinc-500">
             No hay inscriptos{localidad ? " en esta localidad" : ""} todavía.
           </p>
         )}
       </div>
 
       {/* Desktop: table */}
-      <div className="mb-8 hidden rounded-2xl border border-zinc-700/60 bg-zinc-950/60 sm:block">
+      <div className="mb-8 hidden rounded-2xl border border-zinc-700/60 bg-zinc-950 sm:block">
         <div className="overflow-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-zinc-950 text-xs uppercase tracking-widest text-zinc-500">
@@ -241,7 +246,7 @@ export default function Dashboard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-2xl border border-zinc-700/60 bg-zinc-950/60 px-4 py-3 text-xs uppercase tracking-widest text-zinc-400">
+      <div className="flex items-center justify-between rounded-2xl border border-zinc-700/60 bg-zinc-950 px-4 py-3 text-xs uppercase tracking-widest text-zinc-400">
         <Link
           aria-disabled={page <= 1}
           href={buildHref({ page: page - 1 })}
@@ -281,7 +286,7 @@ export default function Dashboard({
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-zinc-700/60 bg-zinc-950/60 px-4 py-3 text-center">
+    <div className="rounded-xl border border-zinc-700/60 bg-zinc-950 px-4 py-3 text-center">
       <div className="bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold text-transparent">
         {value}
       </div>
