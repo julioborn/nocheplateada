@@ -6,7 +6,13 @@ import SilverSparkles from "@/components/SilverSparkles";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
+const PAGE_SIZE = 20;
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; localidad?: string }>;
+}) {
   const authed = await isAdminAuthed();
 
   if (!authed) {
@@ -20,15 +26,41 @@ export default async function AdminPage() {
     );
   }
 
-  const { data, error } = await supabaseAdmin
+  const params = await searchParams;
+  const localidad = params.localidad?.trim() ?? "";
+  const page = Math.max(1, Number(params.page) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  let listQuery = supabaseAdmin
     .from("attendees")
-    .select("id, nombre, apellido, localidad, telefono, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, nombre, apellido, localidad, telefono, created_at", {
+      count: "exact",
+    })
+    .order("created_at", { ascending: false })
+    .range(from, to);
+  if (localidad) listQuery = listQuery.eq("localidad", localidad);
+
+  const [{ data: attendees, count, error }, { data: localidadRows }] = await Promise.all([
+    listQuery,
+    supabaseAdmin.from("attendees").select("localidad"),
+  ]);
+
+  const localidadOptions = [...new Set((localidadRows ?? []).map((r) => r.localidad))].sort(
+    (a, b) => a.localeCompare(b, "es")
+  );
 
   return (
     <main className="relative flex flex-1 flex-col items-center overflow-hidden bg-black">
       <SilverSparkles />
-      <Dashboard attendees={error ? [] : data ?? []} />
+      <Dashboard
+        attendees={error ? [] : attendees ?? []}
+        total={count ?? 0}
+        page={page}
+        pageSize={PAGE_SIZE}
+        localidad={localidad}
+        localidadOptions={localidadOptions}
+      />
     </main>
   );
 }

@@ -26,10 +26,16 @@ export async function isAdminAuthed() {
   return timingSafeEqual(a, b);
 }
 
-export function checkPassword(password: string) {
-  if (!password || !process.env.ADMIN_PASSWORD) return false;
-  const a = Buffer.from(password);
-  const b = Buffer.from(process.env.ADMIN_PASSWORD);
+function safeEqual(value: string, expected: string | undefined) {
+  if (!value || !expected) return false;
+  const a = Buffer.from(value);
+  const b = Buffer.from(expected);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
+}
+
+export function checkCredentials(username: string, password: string) {
+  const userOk = safeEqual(username, process.env.ADMIN_USERNAME);
+  const passOk = safeEqual(password, process.env.ADMIN_PASSWORD);
+  return userOk && passOk;
 }

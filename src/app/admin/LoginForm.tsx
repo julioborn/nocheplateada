@@ -13,13 +13,27 @@ export default function LoginForm() {
     >
       <label className="flex flex-col gap-1.5 text-left">
         <span className="text-xs uppercase tracking-widest text-zinc-400">
+          Usuario
+        </span>
+        <input
+          type="text"
+          name="username"
+          required
+          autoFocus
+          autoComplete="username"
+          className="rounded-lg border border-zinc-700 bg-black/60 px-4 py-2.5 text-zinc-100 outline-none transition focus:border-zinc-300 focus:ring-1 focus:ring-zinc-300"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1.5 text-left">
+        <span className="text-xs uppercase tracking-widest text-zinc-400">
           Contraseña
         </span>
         <input
           type="password"
           name="password"
           required
-          autoFocus
+          autoComplete="current-password"
           className="rounded-lg border border-zinc-700 bg-black/60 px-4 py-2.5 text-zinc-100 outline-none transition focus:border-zinc-300 focus:ring-1 focus:ring-zinc-300"
         />
       </label>
