@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE_NAME, checkCredentials, isAdminAuthed, makeSessionToken } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -61,4 +62,14 @@ export async function sortearGanador(localidad: string): Promise<Attendee | null
 
   const { data } = await rowQuery;
   return data?.[0] ?? null;
+}
+
+export async function eliminarAsistente(id: string) {
+  if (!(await isAdminAuthed())) return { error: "No autorizado" };
+
+  const { error } = await supabaseAdmin.from("attendees").delete().eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  return { ok: true };
 }

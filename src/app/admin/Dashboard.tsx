@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { logout, sortearGanador, type Attendee } from "./actions";
+import { eliminarAsistente, logout, sortearGanador, type Attendee } from "./actions";
 
 export default function Dashboard({
   attendees,
@@ -23,8 +23,12 @@ export default function Dashboard({
   const router = useRouter();
   const [winner, setWinner] = useState<Attendee | null>(null);
   const [sorting, startSorteo] = useTransition();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  const [, startDelete] = useTransition();
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const visibleAttendees = attendees.filter((a) => !deletedIds.has(a.id));
 
   function buildHref(overrides: { page?: number; localidad?: string }) {
     const params = new URLSearchParams();
@@ -45,6 +49,23 @@ export default function Dashboard({
     startSorteo(async () => {
       const pick = await sortearGanador(localidad);
       setWinner(pick);
+    });
+  }
+
+  function handleDelete(attendee: Attendee) {
+    const ok = window.confirm(
+      `¿Eliminar a ${attendee.nombre} ${attendee.apellido}? Esta acción no se puede deshacer.`
+    );
+    if (!ok) return;
+
+    setDeletingId(attendee.id);
+    startDelete(async () => {
+      const result = await eliminarAsistente(attendee.id);
+      if (result?.ok) {
+        setDeletedIds((prev) => new Set(prev).add(attendee.id));
+        router.refresh();
+      }
+      setDeletingId(null);
     });
   }
 
@@ -129,7 +150,48 @@ export default function Dashboard({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-zinc-700/60 bg-zinc-950/60">
+      {/* Mobile: stacked cards */}
+      <div className="mb-4 flex flex-col gap-3 sm:hidden">
+        {visibleAttendees.map((a) => (
+          <div
+            key={a.id}
+            className="rounded-xl border border-zinc-700/60 bg-zinc-950/60 p-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold text-zinc-100">
+                  {a.nombre} {a.apellido}
+                </p>
+                <p className="text-sm text-zinc-400">{a.localidad}</p>
+              </div>
+              <button
+                onClick={() => handleDelete(a)}
+                disabled={deletingId === a.id}
+                className="shrink-0 rounded-full border border-red-500/40 px-3 py-1 text-xs uppercase tracking-widest text-red-400 hover:bg-red-500/10 disabled:opacity-50"
+              >
+                {deletingId === a.id ? "..." : "Eliminar"}
+              </button>
+            </div>
+            <div className="mt-3 flex items-center justify-between text-xs text-zinc-500">
+              <span>{a.telefono ?? "Sin teléfono"}</span>
+              <span>
+                {new Date(a.created_at).toLocaleTimeString("es-AR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          </div>
+        ))}
+        {visibleAttendees.length === 0 && (
+          <p className="rounded-xl border border-zinc-700/60 bg-zinc-950/60 p-6 text-center text-sm text-zinc-500">
+            No hay inscriptos{localidad ? " en esta localidad" : ""} todavía.
+          </p>
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="mb-8 hidden rounded-2xl border border-zinc-700/60 bg-zinc-950/60 sm:block">
         <div className="overflow-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-zinc-950 text-xs uppercase tracking-widest text-zinc-500">
@@ -139,10 +201,11 @@ export default function Dashboard({
                 <th className="px-4 py-3">Localidad</th>
                 <th className="px-4 py-3">Teléfono</th>
                 <th className="px-4 py-3">Hora</th>
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
-              {attendees.map((a) => (
+              {visibleAttendees.map((a) => (
                 <tr key={a.id} className="border-t border-zinc-800/80">
                   <td className="px-4 py-2.5">{a.nombre}</td>
                   <td className="px-4 py-2.5">{a.apellido}</td>
@@ -154,11 +217,20 @@ export default function Dashboard({
                       minute: "2-digit",
                     })}
                   </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <button
+                      onClick={() => handleDelete(a)}
+                      disabled={deletingId === a.id}
+                      className="rounded-full border border-red-500/40 px-3 py-1 text-xs uppercase tracking-widest text-red-400 hover:bg-red-500/10 disabled:opacity-50"
+                    >
+                      {deletingId === a.id ? "..." : "Eliminar"}
+                    </button>
+                  </td>
                 </tr>
               ))}
-              {attendees.length === 0 && (
+              {visibleAttendees.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
                     No hay inscriptos{localidad ? " en esta localidad" : ""} todavía.
                   </td>
                 </tr>
@@ -166,32 +238,32 @@ export default function Dashboard({
             </tbody>
           </table>
         </div>
+      </div>
 
-        <div className="flex items-center justify-between border-t border-zinc-800/80 px-4 py-3 text-xs uppercase tracking-widest text-zinc-400">
-          <Link
-            aria-disabled={page <= 1}
-            href={buildHref({ page: page - 1 })}
-            className={`rounded-lg border border-zinc-700 px-3 py-1.5 ${
-              page <= 1 ? "pointer-events-none opacity-30" : "hover:border-zinc-400 hover:text-white"
-            }`}
-          >
-            Anterior
-          </Link>
-          <span>
-            Página {page} de {totalPages}
-          </span>
-          <Link
-            aria-disabled={page >= totalPages}
-            href={buildHref({ page: page + 1 })}
-            className={`rounded-lg border border-zinc-700 px-3 py-1.5 ${
-              page >= totalPages
-                ? "pointer-events-none opacity-30"
-                : "hover:border-zinc-400 hover:text-white"
-            }`}
-          >
-            Siguiente
-          </Link>
-        </div>
+      <div className="flex items-center justify-between rounded-2xl border border-zinc-700/60 bg-zinc-950/60 px-4 py-3 text-xs uppercase tracking-widest text-zinc-400">
+        <Link
+          aria-disabled={page <= 1}
+          href={buildHref({ page: page - 1 })}
+          className={`rounded-lg border border-zinc-700 px-3 py-1.5 ${
+            page <= 1 ? "pointer-events-none opacity-30" : "hover:border-zinc-400 hover:text-white"
+          }`}
+        >
+          Anterior
+        </Link>
+        <span>
+          Página {page} de {totalPages}
+        </span>
+        <Link
+          aria-disabled={page >= totalPages}
+          href={buildHref({ page: page + 1 })}
+          className={`rounded-lg border border-zinc-700 px-3 py-1.5 ${
+            page >= totalPages
+              ? "pointer-events-none opacity-30"
+              : "hover:border-zinc-400 hover:text-white"
+          }`}
+        >
+          Siguiente
+        </Link>
       </div>
     </div>
   );
