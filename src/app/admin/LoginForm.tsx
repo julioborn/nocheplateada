@@ -11,10 +11,10 @@ export default function LoginForm() {
   return (
     <form
       action={formAction}
-      className="flex w-full max-w-md flex-col gap-6 rounded-2xl border border-zinc-700/60 bg-zinc-950/60 p-8 sm:p-10"
+      className="flex w-full max-w-md flex-col gap-6 rounded-2xl border-2 border-zinc-500 bg-zinc-950/90 p-8 shadow-[0_0_50px_rgba(160,170,190,0.15)] backdrop-blur sm:p-10"
     >
       <label className="flex flex-col gap-2 text-left">
-        <span className="text-sm uppercase tracking-widest text-zinc-400">
+        <span className="text-sm font-semibold uppercase tracking-widest text-zinc-300">
           Usuario
         </span>
         <input
@@ -25,12 +25,12 @@ export default function LoginForm() {
           autoComplete="username"
           value={username}
           onChange={(e) => setUsername(e.target.value.toLowerCase())}
-          className="rounded-lg border border-zinc-700 bg-black/60 px-5 py-3.5 text-base text-zinc-100 outline-none transition focus:border-zinc-300 focus:ring-1 focus:ring-zinc-300"
+          className="rounded-lg border-2 border-zinc-600 bg-black px-5 py-3.5 text-base text-zinc-100 outline-none transition focus:border-zinc-300 focus:ring-1 focus:ring-zinc-300"
         />
       </label>
 
       <label className="flex flex-col gap-2 text-left">
-        <span className="text-sm uppercase tracking-widest text-zinc-400">
+        <span className="text-sm font-semibold uppercase tracking-widest text-zinc-300">
           Contraseña
         </span>
         <input
@@ -38,16 +38,16 @@ export default function LoginForm() {
           name="password"
           required
           autoComplete="current-password"
-          className="rounded-lg border border-zinc-700 bg-black/60 px-5 py-3.5 text-base text-zinc-100 outline-none transition focus:border-zinc-300 focus:ring-1 focus:ring-zinc-300"
+          className="rounded-lg border-2 border-zinc-600 bg-black px-5 py-3.5 text-base text-zinc-100 outline-none transition focus:border-zinc-300 focus:ring-1 focus:ring-zinc-300"
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm text-zinc-400">
+      <label className="flex items-center gap-2 text-sm font-medium text-zinc-300">
         <input
           type="checkbox"
           checked={showPassword}
           onChange={(e) => setShowPassword(e.target.checked)}
-          className="h-4 w-4 rounded border-zinc-600 bg-black/60 accent-zinc-300"
+          className="h-4 w-4 rounded border-2 border-zinc-500 bg-black accent-zinc-300"
         />
         Mostrar contraseña
       </label>
