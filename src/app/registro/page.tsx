@@ -30,8 +30,8 @@ export default function RegistroPage() {
     setError("");
 
     const { error: insertError } = await supabase.from("attendees").insert({
-      nombre: nombre.trim(),
-      apellido: apellido.trim(),
+      nombre: nombre.trim().toLocaleUpperCase("es"),
+      apellido: apellido.trim().toLocaleUpperCase("es"),
       localidad: localidad.trim(),
       telefono: telefono.trim() || null,
     });
