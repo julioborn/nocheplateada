@@ -73,3 +73,17 @@ export async function eliminarAsistente(id: string) {
   revalidatePath("/admin");
   return { ok: true };
 }
+
+export async function setShowRegistro(value: boolean) {
+  if (!(await isAdminAuthed())) return { error: "No autorizado" };
+
+  const { error } = await supabaseAdmin
+    .from("site_settings")
+    .update({ show_registro: value })
+    .eq("id", true);
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  return { ok: true };
+}
