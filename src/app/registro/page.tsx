@@ -73,7 +73,9 @@ export default function RegistroPage() {
             Ya estás registrado
           </h2>
           <p className="mt-3 max-w-xs text-sm text-zinc-400">
-            Este dispositivo ya se registró para la Noche Plateada. ¡Nos vemos en la pista!
+            Este dispositivo ya se registró para la Noche Plateada.
+            <br />
+            Disfrutá de la Noche Plateada.
           </p>
         </div>
       </main>
