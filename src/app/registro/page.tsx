@@ -52,10 +52,10 @@ export default function RegistroPage() {
         <div className="relative z-10 flex flex-col items-center text-center">
           <Logo className="mt-8 scale-75" />
           <h2 className="mt-10 bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
-            ¡Listo, {nombre}!
+            Bienvenido {nombre}
           </h2>
           <p className="mt-3 max-w-xs text-sm text-zinc-400">
-            Ya estás registrado para la Noche Plateada. ¡Nos vemos en la pista!
+            Disfrutá de la Noche Plateada.
           </p>
         </div>
       </main>
