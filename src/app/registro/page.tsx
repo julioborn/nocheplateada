@@ -4,7 +4,9 @@ import { useState, FormEvent } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import SilverSparkles from "@/components/SilverSparkles";
+import LocalidadField from "@/components/LocalidadField";
 import { supabase } from "@/lib/supabase/client";
+import { isValidLocalidad } from "@/lib/santa-fe-localidades";
 
 export default function RegistroPage() {
   const [nombre, setNombre] = useState("");
@@ -13,9 +15,17 @@ export default function RegistroPage() {
   const [telefono, setTelefono] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState("");
+  const [localidadInvalid, setLocalidadInvalid] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
+    if (!isValidLocalidad(localidad)) {
+      setLocalidadInvalid(true);
+      return;
+    }
+    setLocalidadInvalid(false);
+
     setStatus("loading");
     setError("");
 
@@ -71,7 +81,14 @@ export default function RegistroPage() {
             autoFocus
           />
           <Field label="Apellido" value={apellido} onChange={setApellido} required />
-          <Field label="Localidad" value={localidad} onChange={setLocalidad} required />
+          <LocalidadField
+            value={localidad}
+            onChange={(v) => {
+              setLocalidad(v);
+              if (localidadInvalid) setLocalidadInvalid(false);
+            }}
+            invalid={localidadInvalid}
+          />
           <Field
             label="Teléfono (opcional)"
             value={telefono}
