@@ -1,21 +1,27 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import SilverSparkles from "@/components/SilverSparkles";
 import LocalidadField from "@/components/LocalidadField";
-import { supabase } from "@/lib/supabase/client";
 import { isValidLocalidad } from "@/lib/santa-fe-localidades";
+import { getDeviceId, isAlreadyRegistered, markAsRegistered } from "@/lib/device-id";
 
 export default function RegistroPage() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [localidad, setLocalidad] = useState("");
   const [telefono, setTelefono] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error" | "already"
+  >("idle");
   const [error, setError] = useState("");
   const [localidadInvalid, setLocalidadInvalid] = useState(false);
+
+  useEffect(() => {
+    if (isAlreadyRegistered()) setStatus("already");
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -29,20 +35,49 @@ export default function RegistroPage() {
     setStatus("loading");
     setError("");
 
-    const { error: insertError } = await supabase.from("attendees").insert({
-      nombre: nombre.trim().toLocaleUpperCase("es"),
-      apellido: apellido.trim().toLocaleUpperCase("es"),
-      localidad: localidad.trim(),
-      telefono: telefono.trim() || null,
+    const res = await fetch("/api/registro", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre,
+        apellido,
+        localidad,
+        telefono,
+        deviceId: getDeviceId(),
+      }),
     });
 
-    if (insertError) {
+    if (res.status === 409) {
+      markAsRegistered();
+      setStatus("already");
+      return;
+    }
+
+    if (!res.ok) {
       setStatus("error");
       setError("No se pudo completar el registro. Probá de nuevo.");
       return;
     }
 
+    markAsRegistered();
     setStatus("success");
+  }
+
+  if (status === "already") {
+    return (
+      <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-black px-6 py-16">
+        <SilverSparkles />
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <Logo className="mt-8 scale-75" />
+          <h2 className="mt-10 bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
+            Ya estás registrado
+          </h2>
+          <p className="mt-3 max-w-xs text-sm text-zinc-400">
+            Este dispositivo ya se registró para la Noche Plateada. ¡Nos vemos en la pista!
+          </p>
+        </div>
+      </main>
+    );
   }
 
   if (status === "success") {
