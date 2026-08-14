@@ -11,7 +11,7 @@ export default function Home() {
         <Logo className="mt-8" />
 
         <p className="mt-14 max-w-xs text-sm tracking-widest text-zinc-400 uppercase">
-          Registrate para participar del sorteo
+          Registrate para participar de sorteos
         </p>
 
         <Link
