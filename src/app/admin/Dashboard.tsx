@@ -80,8 +80,8 @@ export default function Dashboard({
       </div>
 
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
-          Noche Plateada — Admin
+        <h1 className="bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-sm font-semibold uppercase tracking-widest text-transparent">
+          Administración
         </h1>
         <form action={logout}>
           <button className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
