@@ -41,7 +41,7 @@ export default function RegistroPage() {
         <SilverSparkles />
         <div className="relative z-10 flex flex-col items-center text-center">
           <Logo className="mt-8 scale-75" />
-          <h2 className="mt-10 bg-gradient-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
+          <h2 className="mt-10 bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
             ¡Listo, {nombre}!
           </h2>
           <p className="mt-3 max-w-xs text-sm text-zinc-400">
@@ -86,7 +86,7 @@ export default function RegistroPage() {
           <button
             type="submit"
             disabled={status === "loading"}
-            className="mt-2 inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-gradient-to-b from-zinc-100 to-zinc-300 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-black shadow-[0_0_25px_rgba(200,210,225,0.35)] transition hover:shadow-[0_0_35px_rgba(200,210,225,0.55)] active:scale-[0.98] disabled:opacity-60"
+            className="mt-2 inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-black shadow-[0_0_25px_rgba(200,210,225,0.35)] transition hover:shadow-[0_0_35px_rgba(200,210,225,0.55)] active:scale-[0.98] disabled:opacity-60"
           >
             {status === "loading" ? "Enviando..." : "Confirmar"}
           </button>

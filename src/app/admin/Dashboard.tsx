@@ -32,7 +32,7 @@ export default function Dashboard({ attendees }: { attendees: Attendee[] }) {
   return (
     <div className="relative z-10 w-full max-w-4xl px-4 py-10">
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="bg-gradient-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
+        <h1 className="bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold uppercase tracking-wide text-transparent">
           Noche Plateada — Admin
         </h1>
         <form action={logout}>
@@ -69,7 +69,7 @@ export default function Dashboard({ attendees }: { attendees: Attendee[] }) {
           <button
             onClick={sortear}
             disabled={attendees.length === 0}
-            className="inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-gradient-to-b from-zinc-100 to-zinc-300 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-black disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-black disabled:opacity-60"
           >
             Sortear ganador
           </button>
@@ -121,7 +121,7 @@ export default function Dashboard({ attendees }: { attendees: Attendee[] }) {
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl border border-zinc-700/60 bg-zinc-950/60 px-4 py-3 text-center">
-      <div className="bg-gradient-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold text-transparent">
+      <div className="bg-linear-to-b from-zinc-200 to-zinc-400 bg-clip-text text-2xl font-bold text-transparent">
         {value}
       </div>
       <div className="text-xs uppercase tracking-widest text-zinc-500">{label}</div>

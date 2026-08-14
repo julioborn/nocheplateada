@@ -29,7 +29,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-gradient-to-b from-zinc-100 to-zinc-300 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-black disabled:opacity-60"
+        className="mt-2 inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-black disabled:opacity-60"
       >
         {pending ? "Entrando..." : "Entrar"}
       </button>
