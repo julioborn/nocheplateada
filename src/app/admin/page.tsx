@@ -1,5 +1,6 @@
 import { isAdminAuthed } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { ageRangeToBirthDateRange } from "@/lib/age";
 import LoginForm from "./LoginForm";
 import Dashboard from "./Dashboard";
 import SilverSparkles from "@/components/SilverSparkles";
@@ -11,7 +12,12 @@ const PAGE_SIZE = 20;
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; localidad?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    localidad?: string;
+    edadMin?: string;
+    edadMax?: string;
+  }>;
 }) {
   const authed = await isAdminAuthed();
 
@@ -28,9 +34,16 @@ export default async function AdminPage({
 
   const params = await searchParams;
   const localidad = params.localidad?.trim() ?? "";
+  const edadMin = params.edadMin?.trim() ?? "";
+  const edadMax = params.edadMax?.trim() ?? "";
   const page = Math.max(1, Number(params.page) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+
+  const { minBirthDate, maxBirthDate } = ageRangeToBirthDateRange(
+    edadMin ? Number(edadMin) : undefined,
+    edadMax ? Number(edadMax) : undefined
+  );
 
   let listQuery = supabaseAdmin
     .from("attendees")
@@ -40,6 +53,8 @@ export default async function AdminPage({
     .order("created_at", { ascending: false })
     .range(from, to);
   if (localidad) listQuery = listQuery.eq("localidad", localidad);
+  if (maxBirthDate) listQuery = listQuery.lte("fecha_nacimiento", maxBirthDate);
+  if (minBirthDate) listQuery = listQuery.gte("fecha_nacimiento", minBirthDate);
 
   const [{ data: attendees, count, error }, { data: localidadRows }] = await Promise.all([
     listQuery,
@@ -60,6 +75,8 @@ export default async function AdminPage({
         pageSize={PAGE_SIZE}
         localidad={localidad}
         localidadOptions={localidadOptions}
+        edadMin={edadMin}
+        edadMax={edadMax}
       />
     </main>
   );

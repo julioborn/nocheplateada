@@ -6,6 +6,7 @@ import Link from "next/link";
 import { eliminarAsistente, logout, sortearGanador, type Attendee } from "./actions";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import Logo from "@/components/Logo";
+import { calcAge } from "@/lib/age";
 
 export default function Dashboard({
   attendees,
@@ -14,6 +15,8 @@ export default function Dashboard({
   pageSize,
   localidad,
   localidadOptions,
+  edadMin,
+  edadMax,
 }: {
   attendees: Attendee[];
   total: number;
@@ -21,6 +24,8 @@ export default function Dashboard({
   pageSize: number;
   localidad: string;
   localidadOptions: string[];
+  edadMin: string;
+  edadMax: string;
 }) {
   const router = useRouter();
   const [winner, setWinner] = useState<Attendee | null>(null);
@@ -29,15 +34,27 @@ export default function Dashboard({
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const [pendingDelete, setPendingDelete] = useState<Attendee | null>(null);
   const [, startDelete] = useTransition();
+  const [edadMinInput, setEdadMinInput] = useState(edadMin);
+  const [edadMaxInput, setEdadMaxInput] = useState(edadMax);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const visibleAttendees = attendees.filter((a) => !deletedIds.has(a.id));
+  const hasAgeFilter = Boolean(edadMin || edadMax);
 
-  function buildHref(overrides: { page?: number; localidad?: string }) {
+  function buildHref(overrides: {
+    page?: number;
+    localidad?: string;
+    edadMin?: string;
+    edadMax?: string;
+  }) {
     const params = new URLSearchParams();
     const nextLocalidad = overrides.localidad ?? localidad;
+    const nextEdadMin = overrides.edadMin ?? edadMin;
+    const nextEdadMax = overrides.edadMax ?? edadMax;
     const nextPage = overrides.page ?? page;
     if (nextLocalidad) params.set("localidad", nextLocalidad);
+    if (nextEdadMin) params.set("edadMin", nextEdadMin);
+    if (nextEdadMax) params.set("edadMax", nextEdadMax);
     if (nextPage > 1) params.set("page", String(nextPage));
     const qs = params.toString();
     return `/admin${qs ? `?${qs}` : ""}`;
@@ -45,6 +62,16 @@ export default function Dashboard({
 
   function handleFilterChange(value: string) {
     router.push(buildHref({ localidad: value, page: 1 }));
+  }
+
+  function applyAgeFilter() {
+    router.push(buildHref({ edadMin: edadMinInput, edadMax: edadMaxInput, page: 1 }));
+  }
+
+  function clearAgeFilter() {
+    setEdadMinInput("");
+    setEdadMaxInput("");
+    router.push(buildHref({ edadMin: "", edadMax: "", page: 1 }));
   }
 
   function sortear() {
@@ -71,7 +98,12 @@ export default function Dashboard({
     });
   }
 
-  const exportQs = localidad ? `?localidad=${encodeURIComponent(localidad)}` : "";
+  const exportParams = new URLSearchParams();
+  if (localidad) exportParams.set("localidad", localidad);
+  if (edadMin) exportParams.set("edadMin", edadMin);
+  if (edadMax) exportParams.set("edadMax", edadMax);
+  const exportQsString = exportParams.toString();
+  const exportQs = exportQsString ? `?${exportQsString}` : "";
 
   function formatFecha(iso: string) {
     const [y, m, d] = iso.split("-");
@@ -136,6 +168,45 @@ export default function Dashboard({
             Quitar filtro
           </Link>
         )}
+
+        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-zinc-400">
+          Edad
+          <input
+            type="number"
+            min={0}
+            placeholder="Mín."
+            value={edadMinInput}
+            onChange={(e) => setEdadMinInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && applyAgeFilter()}
+            className="w-20 rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-300"
+          />
+          <span className="text-zinc-600">—</span>
+          <input
+            type="number"
+            min={0}
+            placeholder="Máx."
+            value={edadMaxInput}
+            onChange={(e) => setEdadMaxInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && applyAgeFilter()}
+            className="w-20 rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-300"
+          />
+          <button
+            type="button"
+            onClick={applyAgeFilter}
+            className="rounded-lg border border-zinc-700 px-3 py-2 normal-case tracking-normal text-zinc-300 hover:border-zinc-400 hover:text-white"
+          >
+            Filtrar
+          </button>
+        </div>
+        {hasAgeFilter && (
+          <button
+            type="button"
+            onClick={clearAgeFilter}
+            className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300"
+          >
+            Quitar filtro de edad
+          </button>
+        )}
       </div>
 
       <div className="mb-8 rounded-2xl border border-zinc-700/60 bg-zinc-950 p-6">
@@ -185,13 +256,15 @@ export default function Dashboard({
             </div>
             <div className="mt-3 flex items-center justify-between text-xs text-zinc-500">
               <span>{a.telefono ?? "Sin teléfono"}</span>
-              <span>Nac. {formatFecha(a.fecha_nacimiento)}</span>
               <span>
                 {new Date(a.created_at).toLocaleTimeString("es-AR", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </span>
+            </div>
+            <div className="mt-1 text-xs text-zinc-500">
+              Nac. {formatFecha(a.fecha_nacimiento)} ({calcAge(a.fecha_nacimiento)} años)
             </div>
           </div>
         ))}
@@ -213,6 +286,7 @@ export default function Dashboard({
                 <th className="px-4 py-3">Localidad</th>
                 <th className="px-4 py-3">Teléfono</th>
                 <th className="px-4 py-3">F. Nac.</th>
+                <th className="px-4 py-3">Edad</th>
                 <th className="px-4 py-3">Hora</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -225,6 +299,7 @@ export default function Dashboard({
                   <td className="px-4 py-2.5">{a.localidad}</td>
                   <td className="px-4 py-2.5 text-zinc-400">{a.telefono ?? "—"}</td>
                   <td className="px-4 py-2.5 text-zinc-400">{formatFecha(a.fecha_nacimiento)}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{calcAge(a.fecha_nacimiento)}</td>
                   <td className="px-4 py-2.5 text-zinc-500">
                     {new Date(a.created_at).toLocaleTimeString("es-AR", {
                       hour: "2-digit",
@@ -244,7 +319,7 @@ export default function Dashboard({
               ))}
               {visibleAttendees.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={8} className="px-4 py-8 text-center text-zinc-500">
                     No hay inscriptos{localidad ? " en esta localidad" : ""} todavía.
                   </td>
                 </tr>

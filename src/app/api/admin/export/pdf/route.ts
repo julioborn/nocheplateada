@@ -3,14 +3,16 @@ import path from "path";
 import PDFDocument from "pdfkit";
 import { isAdminAuthed } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { calcAge, ageRangeToBirthDateRange } from "@/lib/age";
 
 const COLUMNS = [
-  { key: "nombre", label: "Nombre", x: 40, width: 85 },
-  { key: "apellido", label: "Apellido", x: 125, width: 85 },
-  { key: "localidad", label: "Localidad", x: 210, width: 110 },
-  { key: "telefono", label: "Teléfono", x: 320, width: 75 },
-  { key: "fechaNacimiento", label: "Nac.", x: 395, width: 65 },
-  { key: "fechaHora", label: "Fecha / hora", x: 460, width: 95 },
+  { key: "nombre", label: "Nombre", x: 40, width: 80 },
+  { key: "apellido", label: "Apellido", x: 120, width: 80 },
+  { key: "localidad", label: "Localidad", x: 200, width: 95 },
+  { key: "telefono", label: "Teléfono", x: 295, width: 70 },
+  { key: "fechaNacimiento", label: "Nac.", x: 365, width: 60 },
+  { key: "edad", label: "Edad", x: 425, width: 40 },
+  { key: "fechaHora", label: "Fecha / hora", x: 465, width: 90 },
 ] as const;
 
 const TABLE_TOP = 150;
@@ -23,12 +25,20 @@ export async function GET(request: NextRequest) {
   }
 
   const localidad = request.nextUrl.searchParams.get("localidad") ?? "";
+  const edadMinParam = request.nextUrl.searchParams.get("edadMin");
+  const edadMaxParam = request.nextUrl.searchParams.get("edadMax");
+  const { minBirthDate, maxBirthDate } = ageRangeToBirthDateRange(
+    edadMinParam ? Number(edadMinParam) : undefined,
+    edadMaxParam ? Number(edadMaxParam) : undefined
+  );
 
   let query = supabaseAdmin
     .from("attendees")
     .select("nombre, apellido, localidad, telefono, fecha_nacimiento, created_at")
     .order("created_at", { ascending: false });
   if (localidad) query = query.eq("localidad", localidad);
+  if (maxBirthDate) query = query.lte("fecha_nacimiento", maxBirthDate);
+  if (minBirthDate) query = query.gte("fecha_nacimiento", minBirthDate);
 
   const { data, error } = await query;
   if (error) {
@@ -44,6 +54,7 @@ export async function GET(request: NextRequest) {
       localidad: a.localidad,
       telefono: a.telefono ?? "—",
       fechaNacimiento: `${d}/${m}/${y}`,
+      edad: String(calcAge(a.fecha_nacimiento)),
       fechaHora: `${date.toLocaleDateString("es-AR")} ${date.toLocaleTimeString("es-AR", {
         hour: "2-digit",
         minute: "2-digit",
