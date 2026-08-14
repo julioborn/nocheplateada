@@ -6,7 +6,8 @@ import { sortearGanador, type Attendee } from "../actions";
 import WinnerDetailsModal from "./WinnerDetailsModal";
 import type { SorteoNombre } from "./actions";
 
-const TOTAL_TICKS = 32;
+const TOTAL_TICKS = 42;
+const FINAL_HOLD_MS = 600;
 
 export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
   const [phase, setPhase] = useState<"idle" | "spinning" | "result">("idle");
@@ -41,14 +42,16 @@ export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
       setTick(currentTick);
 
       if (currentTick >= TOTAL_TICKS) {
-        setDisplay({
-          id: winner!.id,
-          nombre: winner!.nombre,
-          apellido: winner!.apellido,
-          localidad: winner!.localidad,
-        });
-        setWinnerDetails(winner);
-        setPhase("result");
+        timeoutRef.current = setTimeout(() => {
+          setDisplay({
+            id: winner!.id,
+            nombre: winner!.nombre,
+            apellido: winner!.apellido,
+            localidad: winner!.localidad,
+          });
+          setWinnerDetails(winner);
+          setPhase("result");
+        }, FINAL_HOLD_MS);
         return;
       }
 
@@ -56,7 +59,7 @@ export default function SorteoView({ nombres }: { nombres: SorteoNombre[] }) {
       setDisplay(pick);
 
       const progress = currentTick / TOTAL_TICKS;
-      const delay = 50 + Math.pow(progress, 3) * 450;
+      const delay = 55 + Math.pow(progress, 3.2) * 600;
       timeoutRef.current = setTimeout(step, delay);
     }
 
