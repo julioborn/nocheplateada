@@ -9,7 +9,7 @@ export async function login(_prevState: { error?: string } | undefined, formData
   const username = String(formData.get("username") ?? "");
   const password = String(formData.get("password") ?? "");
 
-  if (!checkCredentials(username, password)) {
+  if (!(await checkCredentials(username, password))) {
     return { error: "Usuario o contraseña incorrectos" };
   }
 

@@ -1,6 +1,8 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
+import bcrypt from "bcryptjs";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const ADMIN_COOKIE_NAME = "np_admin_session";
 
@@ -26,16 +28,15 @@ export async function isAdminAuthed() {
   return timingSafeEqual(a, b);
 }
 
-function safeEqual(value: string, expected: string | undefined) {
-  if (!value || !expected) return false;
-  const a = Buffer.from(value);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
-}
+export async function checkCredentials(username: string, password: string) {
+  if (!username || !password) return false;
 
-export function checkCredentials(username: string, password: string) {
-  const userOk = safeEqual(username, process.env.ADMIN_USERNAME);
-  const passOk = safeEqual(password, process.env.ADMIN_PASSWORD);
-  return userOk && passOk;
+  const { data } = await supabaseAdmin
+    .from("admin_users")
+    .select("password_hash")
+    .eq("username", username)
+    .maybeSingle();
+
+  if (!data) return false;
+  return bcrypt.compare(password, data.password_hash);
 }
