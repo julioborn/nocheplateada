@@ -25,7 +25,6 @@ export default function DniField({
       <input
         type="text"
         inputMode="numeric"
-        pattern="[0-9]*"
         autoComplete="off"
         required
         value={formatDni(value)}

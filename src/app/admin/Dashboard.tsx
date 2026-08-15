@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { eliminarAsistente, logout, sortearGanador, type Attendee } from "./actions";
+import { eliminarAsistente, logout, type Attendee } from "./actions";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import Logo from "@/components/Logo";
 import { calcAge } from "@/lib/age";
@@ -29,8 +29,6 @@ export default function Dashboard({
   edadMax: string;
 }) {
   const router = useRouter();
-  const [winner, setWinner] = useState<Attendee | null>(null);
-  const [sorting, startSorteo] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const [pendingDelete, setPendingDelete] = useState<Attendee | null>(null);
@@ -73,14 +71,6 @@ export default function Dashboard({
     setEdadMinInput("");
     setEdadMaxInput("");
     router.push(buildHref({ edadMin: "", edadMax: "", page: 1 }));
-  }
-
-  function sortear() {
-    setWinner(null);
-    startSorteo(async () => {
-      const pick = await sortearGanador(localidad);
-      setWinner(pick);
-    });
   }
 
   function confirmDelete() {
@@ -210,35 +200,14 @@ export default function Dashboard({
         )}
       </div>
 
-      <div className="mb-8 rounded-2xl border border-zinc-700/60 bg-zinc-950 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-300">
-              Sorteo{localidad ? ` — ${localidad}` : ""}
-            </h2>
-            {winner && (
-              <p className="mt-2 text-lg text-white">
-                🎉 {winner.nombre} {winner.apellido}{" "}
-                <span className="text-zinc-400">({winner.localidad})</span>
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/sorteo"
-              className="rounded-full border border-zinc-600 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300 hover:border-zinc-400 hover:text-white"
-            >
-              Vista completa
-            </Link>
-            <button
-              onClick={sortear}
-              disabled={sorting || total === 0}
-              className="inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-black disabled:opacity-60"
-            >
-              {sorting ? "Sorteando..." : "Sortear ganador"}
-            </button>
-          </div>
-        </div>
+      <div className="mb-8 flex items-center justify-between rounded-2xl border border-zinc-700/60 bg-zinc-950 p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-300">Sorteo</h2>
+        <Link
+          href="/admin/sorteo"
+          className="inline-flex items-center justify-center rounded-full border border-zinc-400/60 bg-linear-to-b from-zinc-100 to-zinc-300 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-black"
+        >
+          Ir al sorteo
+        </Link>
       </div>
 
       {/* Mobile: stacked cards */}
