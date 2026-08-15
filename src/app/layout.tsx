@@ -9,8 +9,20 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.nocheplateada.com.ar"),
   title: "Noche Plateada",
   description: "Registrate para la Noche Plateada",
+  openGraph: {
+    title: "Noche Plateada",
+    description: "Registrate para la Noche Plateada",
+    siteName: "Noche Plateada",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Noche Plateada",
+    description: "Registrate para la Noche Plateada",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
